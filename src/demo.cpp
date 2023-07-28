@@ -161,8 +161,8 @@ void  ToLaserscanMessagePublish(ldlidar::Points2D& src,  double lidar_spin_freq,
   // Adjust the parameters according to the demand
   angle_min = 0;
   angle_max = (2 * M_PI);
-  range_min = 0.02;
-  range_max = 12;
+  range_min = 0.0;
+  range_max = 12.0;
   int beam_size = static_cast<int>(src.size());
   angle_increment = (angle_max - angle_min) / (float)(beam_size -1);
   // Calculate the number of scanning points
@@ -183,15 +183,15 @@ void  ToLaserscanMessagePublish(ldlidar::Points2D& src,  double lidar_spin_freq,
     output.scan_time = scan_time;
     // First fill all the data with Nan
     output.ranges.assign(beam_size, std::numeric_limits<float>::quiet_NaN());
-    output.intensities.assign(beam_size, std::numeric_limits<float>::quiet_NaN());
+    output.intensities.assign(beam_size, 0.0);
     for (auto point : src) {
-      float range = point.distance / 1000.f;  // distance unit transform to meters
+      float range = (point.distance / 1000.f) + 0.17645;  // distance unit transform to meters
       float intensity = point.intensity;      // laser receive intensity 
       float dir_angle = point.angle;
 
       if ((point.distance == 0) && (point.intensity == 0)) { // filter is handled to  0, Nan will be assigned variable.
         range = std::numeric_limits<float>::quiet_NaN(); 
-        intensity = std::numeric_limits<float>::quiet_NaN();
+        intensity = 0.0;
       }
 
       if (setting.enable_angle_crop_func) { // Angle crop setting, Mask data within the set angle range
